@@ -1,7 +1,7 @@
 /*!
  * angular-ui-mask
  * https://github.com/angular-ui/ui-mask
- * Version: 1.8.7 - 2016-07-26T15:59:07.992Z
+ * Version: 1.8.8 - 2019-03-19T20:21:15.176Z
  * License: MIT
  */
 
@@ -94,6 +94,16 @@ angular.module('ui.mask', [])
                                     return originalIsEmpty(value);
                                 }
                             };
+
+                            function isMobile() {
+                                try {
+                                    document.createEvent('TouchEvent');
+                                    return true;
+                                }
+                                catch(e){
+                                    return false;
+                                }
+                            }
 
                             function initialize(maskAttr) {
                                 if (!angular.isDefined(maskAttr)) {
@@ -680,6 +690,17 @@ angular.module('ui.mask', [])
                                     caretPos++;
                                 }
                                 oldCaretPosition = caretPos;
+                                // move caret to the end, odd focusing bug that causes the caret to move to the front
+                                if(isMobile() && !isKeyBackspace) {
+                                    if(caretPos < valUnmasked.length) {
+                                        var newCaretPos = valUnmasked.length;
+                                        //make sure caret goes past typed input, stop at placeholder or when it hits the end
+                                        while (newCaretPos < valMasked.length && (!isValidCaretPosition(newCaretPos) || getPlaceholderChar[newCaretPos] !== valMasked[newCaretPos])) {
+                                            newCaretPos++;
+                                        }
+                                        caretPos = newCaretPos;
+                                    }
+                                }
                                 setCaretPosition(this, caretPos);
                             }
 
